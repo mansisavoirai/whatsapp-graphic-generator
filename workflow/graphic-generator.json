@@ -1,0 +1,1705 @@
+{
+  "name": "whatsapp-graphic-generator",
+  "nodes": [
+    {
+      "parameters": {
+        "url": "={{ $json.body.MediaUrl0 || '' }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -544,
+        -16
+      ],
+      "id": "a56ad298-b6f8-4474-93dc-9678f11d02f5",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "pzkPEJmyh1RM5DhY",
+          "name": "Unnamed credential"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "=12da39af-d1d9-488c-bc48-0b6576914350",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -976,
+        -16
+      ],
+      "id": "00cfab52-b2f4-45cf-89be-30ba7358ddbb",
+      "name": "Webhook",
+      "webhookId": "2b52065e-4080-42b8-8703-88f3f70e3fc6"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Connection",
+              "value": "close"
+            }
+          ]
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "whisper-large-v3"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        832,
+        -48
+      ],
+      "id": "873e1b9f-7932-4bfc-b3e2-c2d56deb1c41",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4Kb9XCcdAZRbfvaA",
+          "name": "Header Auth account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "write",
+        "fileName": "C:\\Users\\mansi\\n8ntest\\test.ogg",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        608,
+        -48
+      ],
+      "id": "781b94ee-1e0f-4eda-b74a-f9febe87efb6",
+      "name": "Read/Write Files from Disk"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_GROQ_API_KEY"
+            },
+            {
+              "name": "Connection",
+              "value": "close "
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"llama-3.3-70b-versatile\",\n  \"messages\": [\n    {\n      \"role\": \"system\",\n      \"content\": \"You are a product detail extractor and copywriter for a hardware trading business in India. Extract product information from the voice note transcript and write a short promotional tagline. Always respond with valid JSON only — no extra text before or after.\"\n    },\n    {\n      \"role\": \"user\",\n      \"content\": \"Extract product details from this voice note transcript and write a tagline.\\nTranscript: {{ JSON.parse($node['HTTP Request2'].json.data).text }}\\n\\nReturn this exact JSON:\\n{\\n\\\"product_name\\\": \\\"name of the product\\\",\\n\\\"price\\\": \\\"price with currency symbol e.g. ₹450 or $12\\\",\\n\\\"key_feature\\\": \\\"main benefit or offer mentioned, max 6 words\\\",\\n\\\"tagline\\\": \\\"punchy promotional line, 6-8 words, in the same language as the transcript\\\",\\n\\\"language\\\": \\\"English\\\" or \\\"Hindi\\\" or \\\"Gujarati\\\"\\n}\\n\\nRules: never translate — match the language of the trader. Hindi in Devanagari script, Gujarati in Gujarati script. Hardware product taglines should emphasise quality, durability, price value, or availability.\"\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1040,
+        -48
+      ],
+      "id": "133867cc-a3cd-4d4c-813d-3e6b3b96f222",
+      "name": "HTTP Request1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "4Kb9XCcdAZRbfvaA",
+          "name": "Header Auth account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const templateNumber = Math.floor(Math.random() * 8) + 1; const rawContent = items[0].json.choices[0].message.content; const productData = JSON.parse(rawContent); return { json: { ...items[0].json, ...productData, template_number: templateNumber } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1264,
+        -48
+      ],
+      "id": "7cdc9bb0-2d61-418b-9442-5488e5e1f103",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "fileSelector": "=C:/Users/mansi/n8ntest/templates/template-{{ $('Code in JavaScript').item.json.template_number }}.html",
+        "options": {
+          "dataPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        2240,
+        0
+      ],
+      "id": "6ae6db05-382e-4106-bc14-e2b1c38cc21a",
+      "name": "Read/Write Files from Disk1"
+    },
+    {
+      "parameters": {
+        "jsCode": "const templateBuffer = await this.helpers.getBinaryDataBuffer(0, 'data');\nconst templateHtml = templateBuffer.toString('utf8');\nconst productData = $('Code in JavaScript').item.json;\n\nconst photoBuffer = await this.helpers.getBinaryDataBuffer(0, 'photo');\nconst photoMimeType = items[0].binary.photo.mimeType;\nconst photoBase64 = photoBuffer.toString('base64');\nconst photoDataUri = `data:${photoMimeType};base64,${photoBase64}`;\n\nconst filledHtml = templateHtml\n  .replace(/\\{\\{product_name\\}\\}/g, productData.product_name || 'Product')\n  .replace(/\\{\\{price\\}\\}/g, productData.price || '')\n  .replace(/\\{\\{tagline\\}\\}/g, productData.tagline || '')\n  .replace(/\\{\\{product_photo_url\\}\\}/g, photoDataUri);\n\nreturn [{ json: { filledHtml: filledHtml } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1472,
+        432
+      ],
+      "id": "0a2f8863-3e9a-4b52-bb3f-1cbd726bd3c2",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hcti.io/v1/image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "html",
+              "value": "the expression"
+            },
+            {
+              "name": "html",
+              "value": "={{ $json.filledHtml }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1792,
+        432
+      ],
+      "id": "e8b9694c-1f57-4cd3-bd38-ff166511c414",
+      "name": "HTTP Request3",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Hr7lrNghD268X0to",
+          "name": "Unnamed credential 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "835948af-b98c-406d-987b-6af9fea9ac91",
+              "leftValue": "={{ $binary.data.mimeType || 'NOTHING_FOUND' }}",
+              "rightValue": "jpeg",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -320,
+        -16
+      ],
+      "id": "6aa36f0a-7e20-4e53-b436-c0e0c0b9da1c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twilio.com/2010-04-01/Accounts/YOUR_TWILIO_ACCOUNT_SID/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "=form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "whatsapp:+YOUR_TWILIO_SENDER_NUMBER"
+            },
+            {
+              "name": "MediaUrl",
+              "value": "={{ $json.url }}"
+            },
+            {
+              "name": "To",
+              "value": "=whatsapp:+YOUR_TRADER_PHONE_NUMBER"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2080,
+        432
+      ],
+      "id": "a955a7ec-8408-412a-a976-21c8463b3e8f",
+      "name": "HTTP Request4",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "7MsbgaQOohud7rTl",
+          "name": "Unnamed credential 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sessions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "PhoneNumber",
+              "lookupValue": "={{ $('Webhook').item.json.body.From }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -112,
+        96
+      ],
+      "id": "5b976ca1-684a-4d84-9c55-6ced872d46ba",
+      "name": "Get row(s) in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uk4H92VCfGcCsGaO",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=sharing",
+          "mode": "url"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 331963167,
+          "mode": "list",
+          "cachedResultName": " Logs-Graphic",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=331963167"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ $now }}",
+            "PhoneNumber": "={{ $('Webhook').item.json.body.From }} ",
+            "ProductName": "= {{ $('Code in JavaScript').item.json.product_name }}\n",
+            "Price": "={{ $('Code in JavaScript').item.json.price }}",
+            "Language": "={{ $('Code in JavaScript').item.json.language }}",
+            "RenderingMode": "standard",
+            "Status ": "success"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PhoneNumber",
+              "displayName": "PhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ModeUsed",
+              "displayName": "ModeUsed",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AutoDetected",
+              "displayName": "AutoDetected",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ProductName",
+              "displayName": "ProductName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Language",
+              "displayName": "Language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RenderingMode",
+              "displayName": "RenderingMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "TemplateNumber",
+              "displayName": "TemplateNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ProcessingTime",
+              "displayName": "ProcessingTime",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "OutputFileSize",
+              "displayName": "OutputFileSize",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status ",
+              "displayName": "Status ",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ErrorMessage",
+              "displayName": "ErrorMessage",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2352,
+        416
+      ],
+      "id": "89e4d84f-eb5f-48e0-8634-01e0000396b7",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uk4H92VCfGcCsGaO",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Savoir-AI-Trader-System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sessions",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "PhoneNumber": "={{ $('Webhook').item.json.body.From }}",
+            "MediaUrl": "={{ $json.body.MediaUrl0 }}",
+            "SessionStatus": "photo_received",
+            "SessionTimestamp": "={{ $now }}"
+          },
+          "matchingColumns": [
+            "PhoneNumber"
+          ],
+          "schema": [
+            {
+              "id": "PhoneNumber",
+              "displayName": "PhoneNumber",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "DetectedMode",
+              "displayName": "DetectedMode",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "MediaUrl",
+              "displayName": "MediaUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AudioUrl",
+              "displayName": "AudioUrl",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "NumMedia",
+              "displayName": "NumMedia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AutoDetected",
+              "displayName": "AutoDetected",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Transcript",
+              "displayName": "Transcript",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ProductName",
+              "displayName": "ProductName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price",
+              "displayName": "Price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "KeyFeature",
+              "displayName": "KeyFeature",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tagline",
+              "displayName": "Tagline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Language",
+              "displayName": "Language",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "MusicMood",
+              "displayName": "MusicMood",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SessionStatus",
+              "displayName": "SessionStatus",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SessionTimestamp",
+              "displayName": "SessionTimestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LastUpdated",
+              "displayName": "LastUpdated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pipeline",
+              "displayName": "Pipeline",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -112,
+        -384
+      ],
+      "id": "6ab87ce6-c11e-4ac7-807f-d42a6ba115b0",
+      "name": "Append or update row in sheet",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uk4H92VCfGcCsGaO",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const binaryData = $('HTTP Request').item.binary; const sheetData = items[0].json; return [{ json: sheetData, binary: binaryData }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -352
+      ],
+      "id": "debfbd0e-0d90-4e72-92f9-71e0fdd44ec8",
+      "name": "Code in JavaScript3"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "188444b6-7bfb-44b6-8569-2f9846e27674",
+              "leftValue": "={{ $json.body.MediaUrl0 }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -816,
+        -16
+      ],
+      "id": "742caedb-c87c-4981-a3f0-a9db664ea9f0",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Get row(s) in sheet').item.json.MediaUrl }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "photo"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        112,
+        -96
+      ],
+      "id": "7793a5f7-d6e7-44c2-a80d-4fcb67468fd9",
+      "name": "photo",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "7MsbgaQOohud7rTl",
+          "name": "Unnamed credential 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        1024,
+        416
+      ],
+      "id": "530de37f-4ab3-4eb8-b35c-c4d5bcf9146f",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Savoir-AI-Trader-System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1360948330,
+          "mode": "list",
+          "cachedResultName": "n8n Quota Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1360948330"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1472,
+        -48
+      ],
+      "id": "7eaa5aa1-9483-49b3-9728-9047c2028a27",
+      "name": "Get row(s) in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uk4H92VCfGcCsGaO",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst sheetData = items[0].json;\n\nconst storedDateRaw = sheetData['Date'] || sheetData.date || '';\nconst storedCountRaw = sheetData['Count'] || sheetData.count || '0';\n\nlet storedDate = '';\nif (typeof storedDateRaw === 'string') {\n  storedDate = storedDateRaw.trim();\n} else if (storedDateRaw instanceof Date) {\n  storedDate = storedDateRaw.toISOString().split('T')[0];\n}\n\nconst storedCount = parseInt(storedCountRaw, 10) || 0;\nconst istOffset = 5.5 * 60 * 60 * 1000; // 5.5 hours in milliseconds\nconst istDate = new Date(Date.now() + istOffset);\nconst today = istDate.toISOString().split('T')[0];\nlet currentCount = storedCount;\nlet needsReset = false;\n\nif (storedDate !== today) {\n  currentCount = 0;\n  needsReset = true;\n}\n\nreturn [{\n  json: {\n    storedDate,\n    storedCount,\n    currentCount,\n    today,\n    needsReset,\n    canUsePremium: currentCount < 23,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        -48
+      ],
+      "id": "701f7ae9-9f86-4c0b-ba41-e325a661a46e",
+      "name": "Check Date & Reset Counter"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dd6c683f-7f57-4e9e-8f97-b4b01db11420",
+              "leftValue": "={{ $json.needsReset }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1840,
+        -288
+      ],
+      "id": "a7baed0a-93f6-42bc-b2e5-2e341c979814",
+      "name": "Needs Reset?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Savoir-AI-Trader-System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1360948330,
+          "mode": "list",
+          "cachedResultName": "n8n Quota Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1360948330"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.today }}",
+            "Count": "0",
+            "row_number": 2
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Count",
+              "displayName": "Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2368,
+        -496
+      ],
+      "id": "7be4cb53-4999-42b9-af5c-566d9f053f3e",
+      "name": "Reset Counter If Needed",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uk4H92VCfGcCsGaO",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"text_prompts\": [\n    {\n      \"text\": \"Professional product advertisement photography background, {{ $json.product_name }}, clean commercial studio lighting, high resolution, no text, no people, suitable for product overlay, white or neutral tones\",\n      \"weight\": 1\n    },\n    {\n      \"text\": \"text, watermark, logo, people, faces, hands, low quality, blurry\",\n      \"weight\": -1\n    }\n  ],\n  \"cfg_scale\": 7,\n  \"width\": 768,\n  \"height\": 1344,\n  \"steps\": 30,\n  \"samples\": 1\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        2848,
+        -432
+      ],
+      "id": "b8fd8aa4-53ed-42cb-8989-2c7d3b917103",
+      "name": "Stability AI - Generate Background",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Y3guqBj74uV9uAh9",
+          "name": "Header Auth account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\n\nconst artifacts = response.artifacts;\n\nif (!artifacts || artifacts.length === 0) {\n  throw new Error('Stability AI returned no artifacts. Check API key and quota.');\n}\n\nconst base64Image = artifacts[0].base64;\nconst finishReason = artifacts[0].finishReason;\n\nif (finishReason !== 'SUCCESS') {\n  console.warn(`Stability AI finish reason: ${finishReason}`);\n}\n\nconst dataUri = `data:image/png;base64,${base64Image}`;\n\nreturn [{\n  json: {\n    ...($input.first().json),\n    stability_bg_data_uri: dataUri,\n    stability_finish_reason: finishReason,\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3056,
+        -288
+      ],
+      "id": "8caec643-4ba3-4c29-b324-f0d3e4ca6bcc",
+      "name": "Extract Stability AI Background"
+    },
+    {
+      "parameters": {
+        "jsCode": "const templateBuffer = await this.helpers.getBinaryDataBuffer(0, 'data');\nconst templateHtml = templateBuffer.toString('utf8');\n\nconst productData = $('Code in JavaScript').item.json;\nconst photoBuffer = await this.helpers.getBinaryDataBuffer(0, 'photo');\nconst photoMimeType = items[0].binary.photo.mimeType;\nconst photoBase64 = photoBuffer.toString('base64');\nconst photoDataUri = `data:${photoMimeType};base64,${photoBase64}`;\n\nconst filledHtml = templateHtml\n  .replace(/\\{\\{stability_bg_url\\}\\}/g, productData.stability_bg_data_uri || '')\n  .replace(/\\{\\{product_photo_url\\}\\}/g, photoDataUri)\n  .replace(/\\{\\{product_name\\}\\}/g, productData.product_name || 'Product')\n  .replace(/\\{\\{price\\}\\}/g, productData.price || '')\n  .replace(/\\{\\{tagline\\}\\}/g, productData.tagline || '');\n\nreturn [{ json: { filledHtml: filledHtml } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3568,
+        -656
+      ],
+      "id": "db22762c-3f86-4554-babf-88d3121c9496",
+      "name": "Build Premium HTML"
+    },
+    {
+      "parameters": {
+        "fileSelector": "C:/Users/mansi/n8ntest/premium_composite.html",
+        "options": {
+          "dataPropertyName": "data"
+        }
+      },
+      "type": "n8n-nodes-base.readWriteFile",
+      "typeVersion": 1.1,
+      "position": [
+        3216,
+        -384
+      ],
+      "id": "c04e1ae5-96d9-4eef-be2f-ca757e6317aa",
+      "name": "Read Premium Template"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3376,
+        -656
+      ],
+      "id": "4081dd05-01c6-4d93-bde1-888c3f4104e1",
+      "name": "Merge Premium"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://hcti.io/v1/image",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "html",
+              "value": "={{ $json.filledHtml }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3776,
+        -656
+      ],
+      "id": "d7065bd7-f104-43e0-a8bd-af98010d83c2",
+      "name": "Render Premium PNG",
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "Hr7lrNghD268X0to",
+          "name": "Unnamed credential 2"
+        },
+        "httpHeaderAuth": {
+          "id": "4Kb9XCcdAZRbfvaA",
+          "name": "Header Auth account 5"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.twilio.com/2010-04-01/Accounts/YOUR_TWILIO_ACCOUNT_SID/Messages.json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth",
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "whatsapp:+YOUR_TWILIO_SENDER_NUMBER"
+            },
+            {
+              "name": "To",
+              "value": "=whatsapp:+YOUR_TRADER_PHONE_NUMBER"
+            },
+            {
+              "name": "MediaUrl",
+              "value": "={{ $json.url }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3952,
+        -656
+      ],
+      "id": "94632867-de56-48bf-b55c-a7a8ad01a41a",
+      "name": "Send Premium to WhatsApp",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "Y3guqBj74uV9uAh9",
+          "name": "Header Auth account 6"
+        },
+        "httpBasicAuth": {
+          "id": "7MsbgaQOohud7rTl",
+          "name": "Unnamed credential 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Savoir-AI-Trader-System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1360948330,
+          "mode": "list",
+          "cachedResultName": "n8n Quota Tracker",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=1360948330"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $('Check Date & Reset Counter').item.json.today }}",
+            "Count": "={{ $('Check Date & Reset Counter').item.json.currentCount + 1 }}"
+          },
+          "matchingColumns": [
+            "Date"
+          ],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Count",
+              "displayName": "Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4160,
+        -656
+      ],
+      "id": "4ae1e1ae-1778-489b-a092-4d4af661d3c9",
+      "name": "Increment Premium Counter",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uk4H92VCfGcCsGaO",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "list",
+          "cachedResultName": "Savoir-AI-Trader-System",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 15790591,
+          "mode": "list",
+          "cachedResultName": "Mode Log",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=15790591"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Product Name": "={{ $('Code in JavaScript').item.json.product_name }}",
+            "Mode Used": "Premium",
+            "Status": "Success"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Product Name",
+              "displayName": "Product Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mode Used",
+              "displayName": "Mode Used",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        4368,
+        -656
+      ],
+      "id": "f0fecd79-ab6e-48a2-9880-bafa84a91ff4",
+      "name": "Log Premium Mode",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "Uk4H92VCfGcCsGaO",
+          "name": "Google Sheets account 6"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "c778efcc-a8d1-46da-8b76-e4b3fc083ee8",
+              "leftValue": "={{ $json.canUsePremium }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2608,
+        -400
+      ],
+      "id": "da6d74c6-5b77-4e13-a93a-dbd6b7a25c4f",
+      "name": "Premium Quota Available?"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read/Write Files from Disk1": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "photo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Read/Write Files from Disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "photo": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          },
+          {
+            "node": "Merge Premium",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet1": {
+      "main": [
+        [
+          {
+            "node": "Check Date & Reset Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Date & Reset Counter": {
+      "main": [
+        [
+          {
+            "node": "Needs Reset?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Reset?": {
+      "main": [
+        [
+          {
+            "node": "Reset Counter If Needed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Premium Quota Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset Counter If Needed": {
+      "main": [
+        [
+          {
+            "node": "Premium Quota Available?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stability AI - Generate Background": {
+      "main": [
+        [
+          {
+            "node": "Extract Stability AI Background",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Stability AI Background": {
+      "main": [
+        [
+          {
+            "node": "Read Premium Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Premium Template": {
+      "main": [
+        [
+          {
+            "node": "Merge Premium",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Premium": {
+      "main": [
+        [
+          {
+            "node": "Build Premium HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Premium HTML": {
+      "main": [
+        [
+          {
+            "node": "Render Premium PNG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render Premium PNG": {
+      "main": [
+        [
+          {
+            "node": "Send Premium to WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Premium to WhatsApp": {
+      "main": [
+        [
+          {
+            "node": "Increment Premium Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increment Premium Counter": {
+      "main": [
+        [
+          {
+            "node": "Log Premium Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Premium Quota Available?": {
+      "main": [
+        [
+          {
+            "node": "Stability AI - Generate Background",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read/Write Files from Disk1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "23345328-d792-427a-916a-1b4ec51b6038",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b8cd6f469af2103c194c3c875ebd207bbfbc25ae03d0e925004d2ab8397bf359"
+  },
+  "nodeGroups": [],
+  "id": "ZmWiHY6WWv5gisIh",
+  "tags": []
+}

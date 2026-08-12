@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<!--
+  Premium Composite — Production Template
+  Savoir AI — WhatsApp Product Graphic Generator
+  Dimensions: 1080 × 1920px (vertical, WhatsApp Status)
+
+  FONTS: Space Grotesk + Inter (local TTFs in ./fonts/)
+
+  DYNAMIC DATA SLOTS (search DATA: comments):
+  <!-- DATA: stability-bg -->       Full-bleed AI-generated background image (data URI)
+  <!-- DATA: product-image -->      Product photo (data URI)
+  <!-- DATA: product-name -->      Product name text
+  <!-- DATA: tagline -->           Tagline text
+  <!-- DATA: price -->             Price with currency symbol
+-->
+<style>
+  /* ---- Local Fonts ---- */
+  @font-face { font-family:'Space Grotesk'; font-style:normal; font-weight:500; src:url('fonts/sg500.ttf') format('truetype'); }
+  @font-face { font-family:'Space Grotesk'; font-style:normal; font-weight:600; src:url('fonts/sg600.ttf') format('truetype'); }
+  @font-face { font-family:'Space Grotesk'; font-style:normal; font-weight:700; src:url('fonts/sg700.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:300; src:url('fonts/inter300.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:400; src:url('fonts/inter400.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:500; src:url('fonts/inter500.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:600; src:url('fonts/inter600.ttf') format('truetype'); }
+
+  /* ---- Design Tokens ---- */
+  :root {
+    --accent: #D4A853;
+    --accent-r: 212;
+    --accent-g: 168;
+    --accent-b: 83;
+    --accent-dim: rgba(212,168,83,0.10);
+    --accent-glow: rgba(212,168,83,0.22);
+    --accent-border: rgba(212,168,83,0.30);
+    --accent-bg: rgba(212,168,83,0.06);
+    --bg: #0A0A0A;
+    --text-primary: #FFFFFF;
+    --text-secondary: rgba(255,255,255,0.60);
+    --text-dim: rgba(255,255,255,0.30);
+    --divider: rgba(255,255,255,0.06);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: #000;
+    font-family: 'Inter', 'Liberation Sans', 'DejaVu Sans', sans-serif;
+  }
+
+  .canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* ============================================
+     AI-GENERATED BACKGROUND (full-bleed image)
+     ============================================ */
+  .ai-background {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .ai-background img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  /* ============================================
+     DARK GRADIENT OVERLAY (ensures text readability)
+     ============================================ */
+  .gradient-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(to bottom,
+        rgba(10,10,10,0.25) 0%,
+        rgba(10,10,10,0.10) 25%,
+        rgba(10,10,10,0.15) 50%,
+        rgba(10,10,10,0.65) 72%,
+        rgba(10,10,10,0.88) 82%,
+        rgba(8,8,8,0.96) 90%,
+        #080808 100%
+      );
+    pointer-events: none;
+  }
+
+  /* ============================================
+     GRAIN TEXTURE
+     ============================================ */
+  .grain {
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    filter: url(#noiseFilter);
+    opacity: 0.028;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* ============================================
+     CORNER ACCENTS
+     ============================================ */
+  .corner-tr {
+    position: absolute;
+    top: 56px;
+    right: 72px;
+    width: 48px;
+    height: 48px;
+    border-top: 1.5px solid rgba(255,255,255,0.06);
+    border-right: 1.5px solid rgba(255,255,255,0.06);
+    z-index: 4;
+    pointer-events: none;
+  }
+  .corner-bl {
+    position: absolute;
+    bottom: 56px;
+    left: 72px;
+    width: 48px;
+    height: 48px;
+    border-bottom: 1.5px solid rgba(255,255,255,0.06);
+    border-left: 1.5px solid rgba(255,255,255,0.06);
+    z-index: 4;
+    pointer-events: none;
+  }
+
+  /* ============================================
+     PREMIUM BADGE
+     ============================================ */
+  .premium-badge {
+    position: absolute;
+    top: 72px;
+    left: 72px;
+    z-index: 5;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 28px;
+    background: rgba(212,168,83,0.08);
+    border: 1.5px solid rgba(212,168,83,0.25);
+    border-radius: 8px;
+    backdrop-filter: blur(10px);
+  }
+  .premium-icon {
+    width: 18px;
+    height: 18px;
+    position: relative;
+  }
+  .premium-icon svg {
+    width: 100%;
+    height: 100%;
+  }
+  .premium-text {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ============================================
+     PRODUCT IMAGE AREA (centered upper portion)
+     ============================================ */
+  .product-area {
+    position: absolute;
+    top: 220px;
+    left: 0;
+    width: 1080px;
+    height: 900px;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Glow behind product */
+  .product-glow {
+    position: absolute;
+    width: 600px;
+    height: 600px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(212,168,83,0.08) 0%, rgba(212,168,83,0.02) 40%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .product-frame {
+    position: relative;
+    width: 700px;
+    height: 700px;
+    border-radius: 24px;
+    overflow: hidden;
+    background: rgba(18,16,12,0.5);
+    border: 1.5px solid rgba(255,255,255,0.04);
+  }
+
+  .product-frame::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 24px;
+    box-shadow:
+      0 0 120px rgba(212,168,83,0.06),
+      0 40px 80px rgba(0,0,0,0.5),
+      inset 0 1px 0 rgba(255,255,255,0.03);
+    pointer-events: none;
+    z-index: 3;
+  }
+
+  /* Corner accent on image frame */
+  .frame-corner-tl {
+    position: absolute;
+    top: -1px;
+    left: -1px;
+    width: 80px;
+    height: 80px;
+    border-top: 2.5px solid var(--accent);
+    border-left: 2.5px solid var(--accent);
+    border-radius: 24px 0 0 0;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.45;
+  }
+  .frame-corner-br {
+    position: absolute;
+    bottom: -1px;
+    right: -1px;
+    width: 80px;
+    height: 80px;
+    border-bottom: 2.5px solid var(--accent);
+    border-right: 2.5px solid var(--accent);
+    border-radius: 0 0 24px 0;
+    z-index: 4;
+    pointer-events: none;
+    opacity: 0.45;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* SVG fallback shown if image fails to load */
+  .svg-fallback {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(18,16,12,0.5);
+  }
+  .svg-fallback svg {
+    width: 260px;
+    height: 260px;
+    opacity: 0.35;
+  }
+
+  /* ============================================
+     TEXT CONTENT (bottom section)
+     ============================================ */
+  .text-content {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 1080px;
+    z-index: 5;
+    padding: 0 72px 72px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  .text-divider-top {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    border-radius: 2px;
+    margin-bottom: 36px;
+    flex-shrink: 0;
+  }
+
+  .product-name {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 86px;
+    line-height: 1.02;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: -1.5px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+  }
+
+  .tagline {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 30px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    margin-bottom: 44px;
+    max-width: 780px;
+    flex-shrink: 0;
+  }
+
+  .price-divider {
+    width: 80px;
+    height: 1.5px;
+    background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+    border-radius: 2px;
+    margin-bottom: 32px;
+    flex-shrink: 0;
+  }
+
+  .price-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 44px;
+    flex-shrink: 0;
+  }
+  .price {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 700;
+    font-size: 100px;
+    color: var(--accent);
+    line-height: 1;
+    letter-spacing: -2px;
+  }
+  .price-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 16px;
+    color: var(--text-dim);
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-top: 10px;
+  }
+
+  /* Feature pill */
+  .feature-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+    padding: 18px 40px;
+    border: 1.5px solid var(--accent-border);
+    border-radius: 100px;
+    background: var(--accent-bg);
+    margin-bottom: 40px;
+    flex-shrink: 0;
+  }
+  .feature-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex-shrink: 0;
+    box-shadow: 0 0 10px var(--accent-glow);
+  }
+  .feature-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--text-primary);
+    letter-spacing: 0.3px;
+  }
+
+  /* Bottom bar */
+  .bottom-bar {
+    margin-top: auto;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 28px;
+    border-top: 1px solid var(--divider);
+    flex-shrink: 0;
+  }
+  .cta-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .cta-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 20px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+  .cta-arrow {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: 1.5px solid var(--accent-border);
+    border-radius: 50%;
+    color: var(--accent);
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .brand-mark {
+    font-family: 'Space Grotesk', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--text-dim);
+    letter-spacing: 7px;
+    text-transform: uppercase;
+  }
+
+  /* ============================================
+     VIGNETTE (subtle dark edges)
+     ============================================ */
+  .vignette {
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    pointer-events: none;
+    background: radial-gradient(ellipse 70% 65% at 50% 45%, transparent 50%, rgba(0,0,0,0.35) 100%);
+  }
+</style>
+</head>
+<body>
+
+<!-- Noise filter for grain texture -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="canvas">
+
+  <!-- AI-generated background (full-bleed) -->
+  <!-- DATA: stability-bg -->
+  <div class="ai-background">
+    <img src="{{stability_bg_url}}" alt="" onerror="this.parentElement.style.background='linear-gradient(175deg, #1a150d 0%, #0d0b08 40%, #080706 70%, #050505 100%)';this.style.display='none'">
+  </div>
+
+  <!-- Dark gradient overlay for text readability -->
+  <div class="gradient-overlay"></div>
+
+  <!-- Grain texture -->
+  <div class="grain"></div>
+
+  <!-- Vignette -->
+  <div class="vignette"></div>
+
+  <!-- Corner accents -->
+  <div class="corner-tr"></div>
+  <div class="corner-bl"></div>
+
+  <!-- PREMIUM badge -->
+  <div class="premium-badge">
+    <div class="premium-icon">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#D4A853"/>
+      </svg>
+    </div>
+    <span class="premium-text">Premium</span>
+  </div>
+
+  <!-- Product Image Area (centered) -->
+  <div class="product-area">
+    <div class="product-glow"></div>
+    <div class="product-frame">
+      <div class="frame-corner-tl"></div>
+      <div class="frame-corner-br"></div>
+      <!-- DATA: product-image -->
+      <img class="product-image" src="{{product_photo_url}}" alt="Product Photo" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+      <div class="svg-fallback" style="display:none">
+        <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="valveBodyGrad" x1="100" y1="120" x2="300" y2="280" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#D4A853" stop-opacity="0.25"/>
+              <stop offset="50%" stop-color="#A07830" stop-opacity="0.15"/>
+              <stop offset="100%" stop-color="#6B4F20" stop-opacity="0.08"/>
+            </linearGradient>
+            <linearGradient id="valveHandleGrad" x1="200" y1="80" x2="200" y2="170" gradientUnits="userSpaceOnUse">
+              <stop offset="0%" stop-color="#D4A853" stop-opacity="0.20"/>
+              <stop offset="100%" stop-color="#A07830" stop-opacity="0.08"/>
+            </linearGradient>
+          </defs>
+          <rect x="60" y="170" width="280" height="60" rx="30" stroke="#D4A853" stroke-width="2" stroke-opacity="0.35" fill="url(#valveBodyGrad)"/>
+          <rect x="10" y="178" width="56" height="44" rx="6" stroke="#D4A853" stroke-width="1.5" stroke-opacity="0.25" fill="none"/>
+          <rect x="334" y="178" width="56" height="44" rx="6" stroke="#D4A853" stroke-width="1.5" stroke-opacity="0.25" fill="none"/>
+          <circle cx="200" cy="200" r="28" stroke="#D4A853" stroke-width="2" stroke-opacity="0.4" fill="#D4A853" fill-opacity="0.06"/>
+          <ellipse cx="200" cy="200" rx="12" ry="28" stroke="#D4A853" stroke-width="1" stroke-opacity="0.20" fill="none"/>
+          <rect x="195" y="165" width="10" height="25" rx="3" stroke="#D4A853" stroke-width="1.5" stroke-opacity="0.30" fill="url(#valveHandleGrad)"/>
+          <rect x="155" y="80" width="90" height="14" rx="7" stroke="#D4A853" stroke-width="2" stroke-opacity="0.40" fill="url(#valveHandleGrad)"/>
+          <rect x="170" y="78" width="2" height="18" rx="1" fill="#D4A853" fill-opacity="0.15"/>
+          <rect x="190" y="78" width="2" height="18" rx="1" fill="#D4A853" fill-opacity="0.15"/>
+          <rect x="210" y="78" width="2" height="18" rx="1" fill="#D4A853" fill-opacity="0.15"/>
+          <rect x="230" y="78" width="2" height="18" rx="1" fill="#D4A853" fill-opacity="0.15"/>
+          <circle cx="100" cy="170" r="5" stroke="#D4A853" stroke-width="1" stroke-opacity="0.25" fill="#D4A853" fill-opacity="0.04"/>
+          <circle cx="300" cy="170" r="5" stroke="#D4A853" stroke-width="1" stroke-opacity="0.25" fill="#D4A853" fill-opacity="0.04"/>
+          <circle cx="100" cy="230" r="5" stroke="#D4A853" stroke-width="1" stroke-opacity="0.25" fill="#D4A853" fill-opacity="0.04"/>
+          <circle cx="300" cy="230" r="5" stroke="#D4A853" stroke-width="1" stroke-opacity="0.25" fill="#D4A853" fill-opacity="0.04"/>
+          <text x="200" y="310" text-anchor="middle" font-family="Inter, sans-serif" font-size="14" font-weight="500" letter-spacing="3" fill="#D4A853" fill-opacity="0.35">PRODUCT IMAGE</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+
+  <!-- Text Content (bottom section) -->
+  <div class="text-content">
+    <div class="text-divider-top"></div>
+
+    <!-- DATA: product-name -->
+    <div class="product-name">{{product_name}}</div>
+
+    <!-- DATA: tagline -->
+    <div class="tagline">{{tagline}}</div>
+
+    <div class="price-divider"></div>
+
+    <div class="price-section">
+      <!-- DATA: price -->
+      <div class="price">{{price}}</div>
+      <div class="price-label">Best Price</div>
+    </div>
+
+    <div class="feature-badge">
+      <span class="feature-dot"></span>
+      <span class="feature-text">ISI Certified · Heavy Duty</span>
+    </div>
+
+    <div class="bottom-bar">
+      <div class="cta-group">
+        <span class="cta-text">WhatsApp to Order</span>
+        <span class="cta-arrow">→</span>
+      </div>
+      <div class="brand-mark">Savoir AI</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,555 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<!--
+  Template 3: Gradient Burst
+  Savoir AI — WhatsApp Product Graphic Generator
+  Dimensions: 1080 x 1920px (vertical, WhatsApp Status)
+
+  FONTS: Bricolage Grotesk (local TTF) + Inter (local TTF) in ./fonts/
+  For n8n: replace @font-face with Google Fonts @import.
+
+  DYNAMIC DATA SLOTS (search DATA:):
+  <!-- DATA: product-name -->
+  <!-- DATA: tagline -->
+  <!-- DATA: product-image -->
+  <!-- DATA: price -->
+  <!-- DATA: feature-text -->
+  <!-- DATA: cta-text -->
+  <!-- DATA: brand -->
+-->
+<style>
+  @font-face { font-family:'Bricolage Grotesque'; font-style:normal; font-weight:600; src:url('fonts/bricolage600.ttf') format('truetype'); }
+  @font-face { font-family:'Bricolage Grotesque'; font-style:normal; font-weight:700; src:url('fonts/bricolage700.ttf') format('truetype'); }
+  @font-face { font-family:'Bricolage Grotesque'; font-style:normal; font-weight:800; src:url('fonts/bricolage800.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:400; src:url('fonts/inter400.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:500; src:url('fonts/inter500.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:600; src:url('fonts/inter600.ttf') format('truetype'); }
+
+  :root {
+    /* Mesh gradient colors — updated by color extraction */
+    --g1: #FF8A50;
+    --g2: #E84393;
+    --g3: #6C2D82;
+    --g4: #FF6B6B;
+    --g5: #FFB347;
+    --text-primary: #FFFFFF;
+    --text-glow: rgba(255,255,255,0.92);
+    --text-soft: rgba(255,255,255,0.65);
+    --glass: rgba(255,255,255,0.10);
+    --glass-border: rgba(255,255,255,0.18);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1080px; height: 1920px;
+    overflow: hidden;
+    background: #1a0a2e;
+    font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
+  }
+
+  .canvas {
+    position: absolute; top: 0; left: 0;
+    width: 1080px; height: 1920px;
+    overflow: hidden;
+  }
+
+  /* ============================================
+     MESH GRADIENT BACKGROUND
+     Overlapping radial gradients for organic fluid feel
+     ============================================ */
+  .gradient-bg {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 15% 20%, var(--g5) 0%, transparent 55%)
+    }
+  .gradient-layer2 {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 70% 50% at 85% 15%, var(--g1) 0%, transparent 50%)
+    }
+  .gradient-layer3 {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 60% 70% at 10% 75%, var(--g3) 0%, transparent 55%)
+    }
+  .gradient-layer4 {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 50% 40% at 80% 65%, var(--g2) 0%, transparent 50%)
+    }
+  .gradient-layer5 {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse 40% 35% at 50% 45%, var(--g4) 0%, transparent 45%)
+    }
+  /* Deep base layer */
+  .gradient-base {
+    position: absolute; inset: 0;
+    background: linear-gradient(160deg, #1a0a2e 0%, #2d1b4e 40%, #1a0a2e 100%);
+  }
+
+  /* Grain texture overlay */
+  .grain {
+    position: absolute; inset: -50%; width: 200%; height: 200%;
+    filter: url(#noiseFilter);
+    opacity: 0.045;
+    pointer-events: none; z-index: 6;
+  }
+
+  /* ============================================
+     DECORATIVE ELEMENTS
+     ============================================ */
+  /* Large outlined template number */
+  .deco-number {
+    position: absolute;
+    top: 100px; right: 40px;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 420px;
+    line-height: 1;
+    color: transparent;
+    -webkit-text-stroke: 1.5px rgba(255,255,255,0.07);
+    z-index: 1;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* Tilted label */
+  .tilted-label {
+    position: absolute;
+    top: 160px; left: 72px;
+    transform: rotate(-8deg);
+    z-index: 5;
+    pointer-events: none;
+  }
+  .tilted-label-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 24px;
+    background: rgba(255,255,255,0.12);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,0.15);
+    border-radius: 6px;
+  }
+  .tilted-label-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-primary);
+  }
+  .tilted-dot {
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--g5);
+    box-shadow: 0 0 8px var(--g5);
+  }
+
+  /* Starburst / sunburst behind product */
+  .starburst {
+    position: absolute;
+    width: 900px; height: 900px;
+    left: 50%; top: 720px;
+    transform: translate(-50%, -50%);
+    z-index: 1;
+    pointer-events: none;
+    background:
+      repeating-conic-gradient(
+        from 0deg,
+        rgba(255,255,255,0.03) 0deg 3deg,
+        transparent 3deg 15deg
+      );
+    border-radius: 50%;
+  }
+
+  /* ============================================
+     MAIN CONTENT
+     ============================================ */
+  .content {
+    position: relative;
+    z-index: 5;
+    width: 100%; height: 100%;
+    padding: 220px 72px 64px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+
+  /* Product name */
+  .product-name {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 92px;
+    line-height: 1.05;
+    color: var(--text-primary);
+    letter-spacing: -2px;
+    margin-bottom: 20px;
+    flex-shrink: 0;
+    text-shadow: 0 2px 30px rgba(0,0,0,0.3);
+  }
+
+  /* Tagline */
+  .tagline {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 28px;
+    color: var(--text-soft);
+    line-height: 1.5;
+    margin-bottom: 48px;
+    flex-shrink: 0;
+  }
+
+  /* ============================================
+     PRODUCT IMAGE + GLOW
+     ============================================ */
+  .image-container {
+    position: relative;
+    width: 720px; height: 680px;
+    flex-shrink: 0;
+    margin-bottom: 40px;
+  }
+  /* Multi-layer glow halo */
+  .image-glow {
+    position: absolute;
+    inset: -90px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+      rgba(255,200,100,0.18) 0%,
+      rgba(255,130,80,0.08) 40%,
+      transparent 70%
+    );
+    z-index: 0;
+    pointer-events: none;
+  }
+  .image-glow-inner {
+    position: absolute;
+    inset: -30px;
+    border-radius: 50%;
+    background: radial-gradient(circle,
+      rgba(255,255,255,0.12) 0%,
+      transparent 60%
+    );
+    z-index: 0;
+    pointer-events: none;
+  }
+  .image-frame {
+    position: relative;
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    overflow: hidden;
+    z-index: 2;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .product-image {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+  }
+  /* SVG fallback */
+  .svg-fallback {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    background: radial-gradient(circle, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+  }
+  .svg-fallback svg { width: 200px; height: 200px; opacity: 0.3; }
+
+  /* ============================================
+     PRICE
+     ============================================ */
+  .price-section {
+    margin-bottom: 36px;
+    flex-shrink: 0;
+  }
+  .price-amount {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 800;
+    font-size: 96px;
+    color: var(--text-primary);
+    line-height: 1;
+    letter-spacing: -2px;
+    text-shadow: 0 2px 24px rgba(0,0,0,0.25);
+  }
+  .price-unit {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 26px;
+    color: var(--text-soft);
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+
+  /* ============================================
+     FEATURE BADGE — frosted glass pill
+     ============================================ */
+  .feature-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 36px;
+    background: var(--glass);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+    border-radius: 100px;
+    flex-shrink: 0;
+    margin-bottom: 0;
+  }
+  .feature-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    box-shadow: 0 0 6px rgba(255,255,255,0.4);
+  }
+  .feature-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--text-primary);
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+  }
+
+  /* ============================================
+     TRUST STRIP — frosted glass indicators
+     ============================================ */
+  .usecase-strip {
+    text-align: center;
+    margin-top: auto;
+    flex-shrink: 0;
+  }
+  .usecase-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.3);
+    margin-bottom: 18px;
+  }
+  .usecase-tags {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .usecase-tag {
+    font-family: 'Inter', sans-serif;
+    font-weight: 400;
+    font-size: 20px;
+    color: rgba(255,255,255,0.6);
+    padding: 0 0 0 0;
+    letter-spacing: 0.3px;
+  }
+  .usecase-sep {
+    color: rgba(255,255,255,0.15);
+    margin: 0 16px;
+    font-size: 18px;
+  }
+  .trust-strip {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    margin-top: 0;
+    padding: 22px 0;
+    flex-shrink: 0;
+  }
+  .trust-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 32px;
+  }
+  .trust-item:not(:last-child) {
+    border-right: 1px solid rgba(255,255,255,0.12);
+  }
+  .trust-icon {
+    width: 20px; height: 20px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .trust-icon svg {
+    width: 18px; height: 18px;
+    stroke: var(--text-soft);
+    fill: none;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .trust-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 15px;
+    color: var(--text-soft);
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+  }
+
+  /* ============================================
+     BOTTOM BAR
+     ============================================ */
+  .bottom-bar {
+    margin-top: 0;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 28px 0 0;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    flex-shrink: 0;
+  }
+  .cta-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 19px;
+    color: var(--text-soft);
+    letter-spacing: 0.3px;
+  }
+  .cta-arrow {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 20px;
+    color: var(--text-primary);
+    margin-left: 10px;
+  }
+  .brand-mark {
+    font-family: 'Bricolage Grotesque', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--text-soft);
+    letter-spacing: 5px;
+    text-transform: uppercase;
+  }
+</style>
+</head>
+<body>
+
+<!-- SVG noise filter -->
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <filter id="noiseFilter">
+      <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="canvas">
+  <!-- Gradient layers (bottom to top) -->
+  <div class="gradient-base"></div>
+  <div class="gradient-bg"></div>
+  <div class="gradient-layer2"></div>
+  <div class="gradient-layer3"></div>
+  <div class="gradient-layer4"></div>
+  <div class="gradient-layer5"></div>
+  <div class="starburst"></div>
+
+  <!-- Decorative elements -->
+  <div class="deco-number">03</div>
+  <div class="tilted-label">
+    <div class="tilted-label-inner">
+      <span class="tilted-dot"></span>
+      <span class="tilted-label-text">New Arrival</span>
+    </div>
+  </div>
+
+  <!-- Grain -->
+  <div class="grain"></div>
+
+  <!-- Content -->
+  <div class="content">
+    <!-- DATA: product-name -->
+    <div class="product-name">Industrial Ball<br>Valve 2&#8243;</div>
+
+    <!-- DATA: tagline -->
+    <div class="tagline">Built Tough for Every Job Site</div>
+
+    <!-- Product image with glow -->
+    <div class="image-container">
+      <div class="image-glow"></div>
+      <div class="image-glow-inner"></div>
+      <div class="image-frame">
+        <!-- DATA: product-image -->
+        <img class="product-image" src="assets/valve_product.jpg" alt="Industrial Brass Ball Valve" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+        <div class="svg-fallback" style="display:none">
+          <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="40" y="80" width="120" height="40" rx="6" stroke="#fff" stroke-width="1.5" opacity="0.3"/>
+            <circle cx="100" cy="100" r="16" stroke="#fff" stroke-width="1.5" opacity="0.3"/>
+            <line x1="40" y1="100" x2="24" y2="100" stroke="#fff" stroke-width="1.5" opacity="0.3"/>
+            <line x1="160" y1="100" x2="176" y2="100" stroke="#fff" stroke-width="1.5" opacity="0.3"/>
+            <rect x="88" y="56" width="24" height="44" rx="4" fill="#fff" opacity="0.08"/>
+            <rect x="82" y="48" width="36" height="12" rx="4" fill="#fff" opacity="0.06"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- DATA: price -->
+    <div class="price-section">
+      <div class="price-amount">&#8377;1,250</div>
+      <div class="price-unit">/ piece</div>
+    </div>
+
+    <div class="feature-badge">
+      <span class="feature-dot"></span>
+      <!-- DATA: feature-text -->
+      <span class="feature-text">ISI Certified · Heavy Duty</span>
+    </div>
+
+    <div class="usecase-strip">
+      <div class="usecase-label">Perfect For</div>
+      <div class="usecase-tags">
+        <span class="usecase-tag">Plumbing</span>
+        <span class="usecase-sep">/</span>
+        <span class="usecase-tag">Irrigation</span>
+        <span class="usecase-sep">/</span>
+        <span class="usecase-tag">Industrial Piping</span>
+      </div>
+    </div>
+
+    <div class="trust-strip">
+      <div class="trust-item">
+        <span class="trust-icon"><svg viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></svg></span>
+        <span class="trust-text">Free Delivery</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <span class="trust-text">Bulk Orders</span>
+      </div>
+      <div class="trust-item">
+        <span class="trust-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg></span>
+        <span class="trust-text">COD Available</span>
+      </div>
+    </div>
+
+    <div class="bottom-bar">
+      <div style="display:flex;align-items:center">
+        <!-- DATA: cta-text -->
+        <span class="cta-text">WhatsApp to Order</span>
+        <span class="cta-arrow">→</span>
+      </div>
+      <!-- DATA: brand -->
+      <span class="brand-mark">Savoir AI</span>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Color extraction — modifies gradient stops to match product */
+function extractAccentColor(img){try{var c=document.createElement('canvas'),x=c.getContext('2d'),s=64;c.width=s;c.height=s;x.drawImage(img,0,0,s,s);var d=x.getImageData(0,0,s,s).data,rS=0,gS=0,bS=0,n=0;for(var i=0;i<d.length;i+=16){var r=d[i],g=d[i+1],b=d[i+2],br=(r+g+b)/3;if(br>25&&br<230){var mx=Math.max(r,g,b),mn=Math.min(r,g,b),sa=mx===0?0:(mx-mn)/mx;if(sa>0.08){rS+=r;gS+=g;bS+=b;n++;}}}if(n<10){for(var i=0;i<d.length;i+=16){var r=d[i],g=d[i+1],b=d[i+2],br=(r+g+b)/3;if(br>30&&br<225){rS+=r;gS+=g;bS+=b;n++;}}}if(n>0){var rA=Math.round(rS/n),gA=Math.round(gS/n),bA=Math.round(bS/n),mx=Math.max(rA,gA,bA),mn=Math.min(rA,gA,bA),md=(mx+mn)/2;if(mx!==mn){rA=Math.min(255,Math.round((rA-md)*1.3+md));gA=Math.min(255,Math.round((gA-md)*1.3+md));bA=Math.min(255,Math.round((bA-md)*1.3+md));}
+var h=rA*0.3+gA*0.59+bA*0.11;if(h<0)h+=360;
+/* Shift hue to create 4 gradient stops around the color wheel */
+var st=document.documentElement.style;
+st.setProperty('--g1','hsl('+(h%360)+',75%,55%)');
+st.setProperty('--g2','hsl('+((h+80)%360)+',65%,48%)');
+st.setProperty('--g3','hsl('+((h+200)%360)+',50%,30%)');
+st.setProperty('--g4','hsl('+((h+30)%360)+',70%,55%)');
+st.setProperty('--g5','hsl('+((h-20+360)%360)+',80%,60%)');
+}}catch(e){}}
+document.addEventListener('DOMContentLoaded',function(){var i=document.querySelector('.product-image');if(i&&i.complete&&i.naturalWidth>0)extractAccentColor(i);else if(i)i.addEventListener('load',function(){extractAccentColor(this);});});
+</script>
+</body>
+</html>

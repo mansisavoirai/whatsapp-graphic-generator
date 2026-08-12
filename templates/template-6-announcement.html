@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=1080">
+<!--
+  Template 6: Announcement Style (v3 — clipping fix)
+  Savoir AI — WhatsApp Product Graphic Generator
+  Dimensions: 1080 × 1920px (vertical, WhatsApp Status)
+
+  DESIGN: LOUD promotional poster — "NEW ARRIVAL" energy.
+  Massive condensed type, diagonal-cut band as THE ONE hero element,
+  shop-window / Instagram Reel grab. Bold ≠ tacky.
+
+  v3 FIX: Replaced CSS transform:rotate with clip-path polygon
+  for the diagonal cut. Geometry is now deterministic — the band
+  edge CANNOT clip the text regardless of font metrics.
+
+  FONTS: Anton (Google Fonts, poster condensed) +
+         Bricolage Grotesque (local TTF, product name) +
+         Inter (local TTF, ₹ glyph + details)
+
+  DYNAMIC DATA SLOTS (search DATA:):
+  <!-- DATA: product-name -->
+  <!-- DATA: tagline -->
+  <!-- DATA: product-image -->
+  <!-- DATA: price -->
+  <!-- DATA: feature-text -->
+  <!-- DATA: cta-text -->
+  <!-- DATA: brand -->
+-->
+<style>
+  /* ---- Google Font: Poster Condensed ---- */
+  @import url('https://fonts.googleapis.com/css2?family=Anton&display=swap');
+
+  /* ---- Local Fonts ---- */
+  @font-face { font-family:'Bricolage Grotesque'; font-style:normal; font-weight:600; src:url('fonts/bricolage600.ttf') format('truetype'); }
+  @font-face { font-family:'Bricolage Grotesque'; font-style:normal; font-weight:700; src:url('fonts/bricolage700.ttf') format('truetype'); }
+  @font-face { font-family:'Bricolage Grotesque'; font-style:normal; font-weight:800; src:url('fonts/bricolage800.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:400; src:url('fonts/inter400.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:500; src:url('fonts/inter500.ttf') format('truetype'); }
+  @font-face { font-family:'Inter'; font-style:normal; font-weight:600; src:url('fonts/inter600.ttf') format('truetype'); }
+
+  /* ---- Design Tokens ---- */
+  :root {
+    --bg: #FDFBF7;
+    --text-primary: #1A1714;
+    --accent: #B45309;
+    --accent-r: 180;
+    --accent-g: 83;
+    --accent-b: 9;
+    --accent-light: rgba(180, 83, 9, 0.08);
+    --accent-soft: rgba(180, 83, 9, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html, body {
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: var(--bg);
+    font-family: 'Inter', 'Liberation Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .canvas {
+    position: absolute;
+    top: 0; left: 0;
+    width: 1080px;
+    height: 1920px;
+    overflow: hidden;
+    background: var(--bg);
+  }
+
+  /* ============================================
+     ACCENT BAND — clip-path diagonal, NO rotation
+     Top-left: y=560, Top-right: y=430
+     Text at y~200-340 is 190px above nearest edge
+     ============================================ */
+  .accent-band {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 1080px;
+    height: 580px;
+    background: var(--accent);
+    clip-path: polygon(0 0, 1080px 0, 1080px 430px, 0 560px);
+    z-index: 2;
+  }
+
+  /* ============================================
+     HERO TEXT — "NEW ARRIVAL" single line
+     140px Anton, generous padding within band
+     ============================================ */
+  .hero-text-group {
+    position: absolute;
+    top: 210px;
+    left: 64px;
+    z-index: 5;
+  }
+
+  .hero-line {
+    font-family: 'Anton', 'Impact', 'Arial Black', sans-serif;
+    font-size: 140px;
+    line-height: 1.0;
+    color: #FFFFFF;
+    letter-spacing: 6px;
+    text-transform: uppercase;
+  }
+
+  /* ============================================
+     ROTATED STAMP — "JUST LANDED"
+     ============================================ */
+  .stamp-wrap {
+    position: absolute;
+    top: 50px;
+    right: 56px;
+    z-index: 12;
+    transform: rotate(-8deg);
+  }
+
+  .stamp {
+    padding: 14px 32px;
+    border: 4px solid #DC2626;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .stamp-text {
+    font-family: 'Anton', 'Impact', sans-serif;
+    font-size: 28px;
+    color: #DC2626;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    line-height: 1.05;
+  }
+
+  .stamp-sub {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 9px;
+    color: #DC2626;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    margin-top: 3px;
+    opacity: 0.7;
+  }
+
+  /* ============================================
+     PRODUCT IMAGE — below the band, no overlap
+     ============================================ */
+  .product-image-area {
+    position: absolute;
+    top: 530px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 560px;
+    height: 560px;
+    z-index: 5;
+  }
+
+  .product-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .svg-fallback {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+  }
+  .svg-fallback svg {
+    width: 200px; height: 200px;
+    opacity: 0.08;
+  }
+
+  /* ============================================
+     AVAILABILITY INDICATOR
+     ============================================ */
+  .availability {
+    position: absolute;
+    top: 1105px;
+    left: 64px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .avail-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #16A34A;
+    box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.2);
+  }
+
+  .avail-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: #16A34A;
+  }
+
+  /* ============================================
+     PRODUCT NAME + TAGLINE + FEATURE
+     ============================================ */
+  .product-name-area {
+    position: absolute;
+    top: 1135px;
+    left: 64px;
+    right: 64px;
+    z-index: 5;
+  }
+
+  .product-name {
+    font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
+    font-weight: 800;
+    font-size: 66px;
+    line-height: 1.0;
+    color: var(--text-primary);
+    letter-spacing: -1px;
+  }
+
+  .tagline {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 23px;
+    line-height: 1.4;
+    color: #78716C;
+    margin-top: 14px;
+    letter-spacing: -0.2px;
+  }
+
+  .feature-pill {
+    display: inline-flex;
+    align-items: center;
+    margin-top: 18px;
+    padding: 10px 28px;
+    border: 2.5px solid var(--accent);
+  }
+
+  .feature-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  /* ============================================
+     SPEC STRIP — 3 product highlights
+     ============================================ */
+  .spec-strip {
+    position: absolute;
+    top: 1380px;
+    left: 64px;
+    right: 64px;
+    z-index: 5;
+    display: flex;
+    gap: 0;
+  }
+
+  .spec-item {
+    flex: 1;
+    border-top: 3px solid var(--accent);
+    padding-top: 14px;
+  }
+
+  .spec-item + .spec-item {
+    margin-left: 32px;
+  }
+
+  .spec-value {
+    font-family: 'Bricolage Grotesque', 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 28px;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+    line-height: 1.15;
+  }
+
+  .spec-label {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 11px;
+    color: #A8A29E;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  /* ============================================
+     PRICE BLOCK
+     ============================================ */
+  .price-area {
+    position: absolute;
+    top: 1510px;
+    left: 64px;
+    right: 64px;
+    z-index: 5;
+    display: flex;
+    align-items: baseline;
+    gap: 0;
+  }
+
+  .price-currency {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 52px;
+    color: var(--text-primary);
+    line-height: 1;
+    margin-right: 4px;
+  }
+
+  .price-amount {
+    font-family: 'Anton', 'Impact', sans-serif;
+    font-size: 120px;
+    line-height: 0.9;
+    color: var(--text-primary);
+    letter-spacing: -2px;
+  }
+
+  .price-unit {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 18px;
+    color: #78716C;
+    letter-spacing: 1px;
+    margin-left: 12px;
+    text-transform: uppercase;
+  }
+
+  /* ============================================
+     DIVIDER — accent bar above price
+     ============================================ */
+  .price-divider {
+    position: absolute;
+    top: 1480px;
+    left: 64px;
+    width: 120px;
+    height: 5px;
+    background: var(--accent);
+    z-index: 5;
+  }
+
+  /* ============================================
+     SEQUENCE WATERMARK — "06"
+     ============================================ */
+  .sequence-watermark {
+    position: absolute;
+    top: 1420px;
+    right: -40px;
+    font-family: 'Anton', 'Impact', sans-serif;
+    font-size: 360px;
+    color: rgba(0, 0, 0, 0.025);
+    line-height: 1;
+    z-index: 1;
+    letter-spacing: -8px;
+    pointer-events: none;
+  }
+
+  /* ============================================
+     URGENCY BAR — bottom strip with CTA
+     ============================================ */
+  .urgency-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 1080px;
+    padding: 40px 64px;
+    background: #1A1714;
+    z-index: 8;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .urgency-text {
+    font-family: 'Anton', 'Impact', sans-serif;
+    font-size: 34px;
+    color: #FFFFFF;
+    letter-spacing: 5px;
+    text-transform: uppercase;
+  }
+
+  .urgency-right {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+  }
+
+  .brand-mark {
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    font-size: 10px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .cta-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: var(--accent);
+  }
+
+  .cta-button-text {
+    font-family: 'Anton', 'Impact', sans-serif;
+    font-size: 22px;
+    color: #FFFFFF;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .cta-button-arrow {
+    width: 0;
+    height: 0;
+    border-left: 12px solid #FFFFFF;
+    border-top: 8px solid transparent;
+    border-bottom: 8px solid transparent;
+  }
+
+  /* ============================================
+     TOP-LEFT LABEL
+     ============================================ */
+  .top-label {
+    position: absolute;
+    top: 32px;
+    left: 64px;
+    z-index: 12;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.7);
+  }
+
+  /* ============================================
+     DECORATIVE LINES flanking product
+     ============================================ */
+  .deco-line-left {
+    position: absolute;
+    top: 650px;
+    left: 0;
+    width: 180px;
+    height: 1px;
+    background: rgba(0,0,0,0.06);
+    z-index: 3;
+  }
+
+  .deco-line-right {
+    position: absolute;
+    top: 650px;
+    right: 0;
+    width: 180px;
+    height: 1px;
+    background: rgba(0,0,0,0.06);
+    z-index: 3;
+  }
+</style>
+</head>
+<body>
+
+<div class="canvas">
+
+  <!-- ============================================
+       ACCENT BAND — clip-path diagonal (no rotation)
+       ============================================ -->
+  <div class="accent-band"></div>
+
+  <!-- Top-left label on band -->
+  <div class="top-label">Savoir Hardware Co.</div>
+
+  <!-- ============================================
+       HERO TEXT — "NEW ARRIVAL" single line
+       ============================================ -->
+  <div class="hero-text-group">
+    <!-- DATA: hero-text (composed from announcement type) -->
+    <div class="hero-line">New Arrival</div>
+  </div>
+
+  <!-- ============================================
+       STAMP — "JUST LANDED"
+       ============================================ -->
+  <div class="stamp-wrap">
+    <div class="stamp">
+      <div class="stamp-text">Just Landed</div>
+      <div class="stamp-sub">New Stock</div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       PRODUCT IMAGE — below the band
+       ============================================ -->
+  <div class="product-image-area">
+    <!-- DATA: product-image -->
+    <img class="product-image"
+         src="assets/valve_product.jpg"
+         alt="Industrial Brass Ball Valve"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+    <div class="svg-fallback">
+      <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="40" y="80" width="120" height="40" rx="6" stroke="#1A1714" stroke-width="1.5"/>
+        <circle cx="100" cy="100" r="16" stroke="#1A1714" stroke-width="1.5"/>
+        <line x1="40" y1="100" x2="24" y2="100" stroke="#1A1714" stroke-width="1.5"/>
+        <line x1="160" y1="100" x2="176" y2="100" stroke="#1A1714" stroke-width="1.5"/>
+        <rect x="88" y="56" width="24" height="44" rx="4" fill="#1A1714" opacity="0.06"/>
+        <rect x="82" y="48" width="36" height="12" rx="4" fill="#1A1714" opacity="0.04"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Decorative lines -->
+  <div class="deco-line-left"></div>
+  <div class="deco-line-right"></div>
+
+  <!-- ============================================
+       AVAILABILITY INDICATOR
+       ============================================ -->
+  <div class="availability">
+    <div class="avail-dot"></div>
+    <span class="avail-label">In Stock</span>
+  </div>
+
+  <!-- ============================================
+       PRODUCT NAME + TAGLINE + FEATURE
+       ============================================ -->
+  <div class="product-name-area">
+    <!-- DATA: product-name -->
+    <div class="product-name">Industrial Ball Valve 2&#8243;</div>
+    <!-- DATA: tagline -->
+    <div class="tagline">Built Tough for Every Job Site</div>
+    <div class="feature-pill">
+      <!-- DATA: feature-text -->
+      <span class="feature-text">ISI Certified · Heavy Duty</span>
+    </div>
+  </div>
+
+  <!-- ============================================
+       SPEC STRIP — 3 product detail callouts
+       ============================================ -->
+  <div class="spec-strip">
+    <div class="spec-item">
+      <div class="spec-value">Brass</div>
+      <div class="spec-label">Material</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-value">2 Inch</div>
+      <div class="spec-label">Size</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-value">ISI Mark</div>
+      <div class="spec-label">Certification</div>
+    </div>
+  </div>
+
+  <!-- ============================================
+       PRICE — massive promotional shout
+       ============================================ -->
+  <div class="price-divider"></div>
+  <div class="price-area">
+    <!-- ₹ MUST use Inter (full U+20B9 support) -->
+    <span class="price-currency">&#8377;</span>
+    <!-- DATA: price-amount -->
+    <span class="price-amount">1,250</span>
+    <span class="price-unit">/ piece</span>
+  </div>
+
+  <!-- Sequence watermark -->
+  <div class="sequence-watermark">06</div>
+
+  <!-- ============================================
+       URGENCY BAR — CTA merged in
+       ============================================ -->
+  <div class="urgency-bar">
+    <span class="urgency-text">Limited Stock · Order Today</span>
+    <div class="urgency-right">
+      <div class="cta-button">
+        <!-- DATA: cta-text -->
+        <span class="cta-button-text">Order Now</span>
+        <div class="cta-button-arrow"></div>
+      </div>
+      <!-- DATA: brand -->
+      <span class="brand-mark">Savoir AI</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- ============================================
+     COLOR EXTRACTION
+     ============================================ -->
+<script>
+function extractAccentColor(img) {
+  try {
+    var c = document.createElement('canvas'),
+        x = c.getContext('2d'),
+        s = 64;
+    c.width = s; c.height = s;
+    x.drawImage(img, 0, 0, s, s);
+    var d = x.getImageData(0, 0, s, s).data,
+        rS = 0, gS = 0, bS = 0, n = 0;
+
+    for (var i = 0; i < d.length; i += 16) {
+      var r = d[i], g = d[i+1], b = d[i+2],
+          br = (r + g + b) / 3;
+      if (br > 25 && br < 230) {
+        var mx = Math.max(r, g, b), mn = Math.min(r, g, b),
+            sa = mx === 0 ? 0 : (mx - mn) / mx;
+        if (sa > 0.08) { rS += r; gS += g; bS += b; n++; }
+      }
+    }
+
+    if (n < 10) {
+      for (var i = 0; i < d.length; i += 16) {
+        var r = d[i], g = d[i+1], b = d[i+2],
+            br = (r + g + b) / 3;
+        if (br > 30 && br < 225) { rS += r; gS += g; bS += b; n++; }
+      }
+    }
+
+    if (n > 0) {
+      var rA = Math.round(rS / n),
+          gA = Math.round(gS / n),
+          bA = Math.round(bS / n);
+
+      var mx = Math.max(rA, gA, bA),
+          mn = Math.min(rA, gA, bA),
+          md = (mx + mn) / 2;
+      if (mx !== mn) {
+        rA = Math.min(255, Math.round((rA - md) * 1.3 + md));
+        gA = Math.min(255, Math.round((gA - md) * 1.3 + md));
+        bA = Math.min(255, Math.round((bA - md) * 1.3 + md));
+      }
+
+      var dk = 0.85,
+          rD = Math.round(rA * dk),
+          gD = Math.round(gA * dk),
+          bD = Math.round(bA * dk);
+
+      function relLuminance(r, g, b) {
+        var rs = r / 255, gs = g / 255, bs = b / 255;
+        rs = rs <= 0.03928 ? rs / 12.92 : Math.pow((rs + 0.055) / 1.055, 2.4);
+        gs = gs <= 0.03928 ? gs / 12.92 : Math.pow((gs + 0.055) / 1.055, 2.4);
+        bs = bs <= 0.03928 ? bs / 12.92 : Math.pow((bs + 0.055) / 1.055, 2.4);
+        return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+      }
+
+      var lum = relLuminance(rD, gD, bD);
+      if (lum > 0.18) {
+        var sc = 0.18 / lum;
+        rD = Math.round(Math.min(255, rD * sc));
+        gD = Math.round(Math.min(255, gD * sc));
+        bD = Math.round(Math.min(255, bD * sc));
+      }
+
+      var color = 'rgb(' + rD + ',' + gD + ',' + bD + ')';
+      document.documentElement.style.setProperty('--accent', color);
+      document.documentElement.style.setProperty('--accent-r', rD);
+      document.documentElement.style.setProperty('--accent-g', gD);
+      document.documentElement.style.setProperty('--accent-b', bD);
+      document.documentElement.style.setProperty('--accent-light', 'rgba(' + rD + ',' + gD + ',' + bD + ',0.08)');
+      document.documentElement.style.setProperty('--accent-soft', 'rgba(' + rD + ',' + gD + ',' + bD + ',0.15)');
+    }
+  } catch(e) {}
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+  var img = document.querySelector('.product-image-area .product-image');
+  if (img && img.complete && img.naturalWidth > 0) {
+    extractAccentColor(img);
+  } else if (img) {
+    img.addEventListener('load', function() { extractAccentColor(this); });
+  }
+});
+</script>
+</body>
+</html>
