@@ -160,7 +160,7 @@ Both modes use the same voice transcription (Groq Whisper), the same data extrac
 
 ## Loom Walkthrough
 
-[Watch the full walkthrough →](LOOM_LINK_HERE)
+[Watch the full walkthrough →](https://www.loom.com/share/0578ccfd621341009be5c5e9ea21af6d)
 
 ---
 
