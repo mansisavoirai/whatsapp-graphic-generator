@@ -128,7 +128,7 @@
           "parameters": [
             {
               "name": "Authorization",
-              "value": "Bearer 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"
+              "value": 
             },
             {
               "name": "Connection",
@@ -270,7 +270,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://api.twilio.com/2010-04-01/Accounts/ACf67fcbd5a26f8dd7f6db1b209690ce0d/Messages.json",
+        "url": 
         "authentication": "genericCredentialType",
         "genericAuthType": "httpBasicAuth",
         "sendBody": true,
