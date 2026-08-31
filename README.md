@@ -4,6 +4,22 @@ A WhatsApp bot that turns a voice note and a product photo into a professional m
 
 ---
 
+## ⚠️ Personal API Keys — Must Be Replaced Before Production
+
+The following accounts used during development and trial testing are **personal accounts belonging to Mansi Sonani, not Savoir AI-owned accounts**. They must be replaced with company-owned credentials before this system is used for real traders or handed to another developer long-term:
+
+| Service | Account type | Where to create a company one |
+|---|---|---|
+| **Groq** | Personal API key | https://console.groq.com/keys |
+| **Stability AI** | Personal API key | https://platform.stability.ai/account/keys |
+| **htmlcsstoimage.com** | Personal account (user ID + API key) | https://htmlcsstoimage.com/ |
+
+No key values are included anywhere in this repo or workflow export — only placeholders (`YOUR_GROQ_API_KEY`, `YOUR_STABILITY_AI_KEY`, `YOUR_HCTI_USER_ID`, `YOUR_HCTI_API_KEY`). Whoever takes this over needs to generate new keys under Savoir AI's own accounts and add them through n8n's Credentials system (Settings → Credentials), not hardcoded into node parameters.
+
+Twilio and Google Sheets access were already set up by Savoir AI and are not personal — no action needed there.
+
+---
+
 ## ✨ What Makes This Special
 
 - **Dual-mode rendering with automatic fallback.** Eight rotating HTML/CSS templates (Standard) and Stability AI SDXL-generated backgrounds (Premium) run as parallel branches in the same n8n workflow. A Google Sheets quota counter tracks daily Premium usage; when the limit approaches, the system routes to Standard without any manual intervention. If the Stability AI API fails mid-request, a separate Error Trigger catches the failure and re-routes to Standard. The trader always gets a graphic — never a blank, never an error.
@@ -45,6 +61,12 @@ Trader sends WhatsApp (voice note + photo)
    │  70B Versatile      │  tagline, key_feature, language
    └────────┬──────────┘
             │
+            ▼
+   ┌──────────────────┐
+   │  Welcome Menu       │  Trader message routed: GRAPHIC →
+   │  Routing (If1)      │  graphic flow below; VIDEO → forwarded
+   └────────┬──────────┘  to video pipeline (see below); anything
+            │              else → welcome message
             ▼
    ┌──────────────────┐
    │  Google Sheets     │  Read daily Premium quota count
@@ -90,9 +112,9 @@ Trader sends WhatsApp (voice note + photo)
 | Service | What you need |
 |---|---|
 | Twilio | WhatsApp Sandbox or approved sender number |
-| Groq | API key (`YOUR_GROQ_API_KEY`) |
-| Stability AI | API key (`YOUR_STABILITY_AI_KEY`) — Premium Mode only |
-| htmlcsstoimage.com | Account with user ID + API key (`YOUR_HCTI_USER_ID`, `YOUR_HCTI_API_KEY`) |
+| Groq | API key (`YOUR_GROQ_API_KEY`) — replace personal key, see warning above |
+| Stability AI | API key (`YOUR_STABILITY_AI_KEY`) — Premium Mode only, replace personal key, see warning above |
+| htmlcsstoimage.com | Account with user ID + API key (`YOUR_HCTI_USER_ID`, `YOUR_HCTI_API_KEY`) — replace personal account, see warning above |
 | n8n | Self-hosted instance or n8n Cloud |
 | Google Cloud | Google Sheets API enabled, OAuth2 service account credentials |
 
@@ -118,7 +140,7 @@ Trader sends WhatsApp (voice note + photo)
 5. **Copy template files** from `templates/` to the path on your n8n server that the workflow's template-selection node reads from.
 
 6. **Create a Google Sheet** with the following tabs:
-   - **Sessions** — stores registered trader phone numbers.
+   - **Sessions** — stores registered trader phone numbers and session data.
    - **Logs-Graphic** — logs every graphic generation (timestamp, phone number, product name, mode used, template number, status).
    - **Quota Tracker** (or whatever your quota tab is named) — cell A2 holds today's date, cell B2 holds the daily Premium generation count. The workflow auto-resets B2 to 0 at midnight.
    - **Mode Log** — records which mode fired on each request and why (Premium, Quota Fallback, Standard).
@@ -164,9 +186,15 @@ Both modes use the same voice transcription (Groq Whisper), the same data extrac
 
 ---
 
-## Connecting to Helga's Video Pipeline
+## Welcome Menu & Connecting to Helga's Video Pipeline
 
-This graphic generator is designed to work alongside a separate video generation pipeline. When a trader requests a video (modes 4, 5, or 6), the workflow should forward the request to the video pipeline's webhook with the following payload structure:
+The workflow now includes a welcome-menu router: when a trader messages the bot, their message text is checked and routed three ways:
+
+- **"GRAPHIC"** → routes into the graphic-generation flow described above.
+- **"VIDEO"** → looks up the trader's session data in the Sessions sheet, then forwards a request to the video pipeline's webhook (built by Helga, a colleague on a separate video-generation pipeline) with the payload structure below.
+- **Anything else** (first-time "hi", unrecognized text) → sends a welcome message asking the trader to reply GRAPHIC or VIDEO.
+
+Video request payload sent to Helga's pipeline:
 
 ```json
 {
@@ -193,7 +221,9 @@ Mode mapping:
 | `5` | Slideshow |
 | `6` | Video edit |
 
-The `session_key`, `media_urls`, `voice_note_url`, `transcript`, and all extracted product fields should be populated from the data already available in the workflow at the point where the mode is determined. The video pipeline handles the rest and delivers the final video back to the trader via WhatsApp.
+The video pipeline handles generation and delivers the final video back to the trader via WhatsApp through its own separate webhook/Twilio integration (already tested and confirmed working with a real video).
+
+**Current status of this integration:** the routing, session lookup, and outbound request are built and tested on this side. The final live handoff to the video pipeline is currently blocked by a 404 from the video pipeline's hosting (Railway) — confirmed by Helga to be a hosting-credit issue on her end, not a bug in this workflow. Once her hosting is restored, this integration should work without further changes here.
 
 ---
 
@@ -206,5 +236,5 @@ The `session_key`, `media_urls`, `voice_note_url`, `transcript`, and all extract
 | Google Sheets logging | ✅ Sessions, Logs-Graphic, Mode Log all populating |
 | Daily quota reset | ✅ Auto-resets at midnight |
 | Multilingual support | ✅ English, Hindi, Gujarati confirmed |
-
-
+| Welcome menu routing (GRAPHIC/VIDEO) | ✅ Built and tested end-to-end on WhatsApp |
+| Video pipeline handoff | ⏳ Built and tested on this side; blocked on video pipeline's hosting being restored (external, not a code issue) |
